@@ -1,0 +1,43 @@
+﻿@page "/"
+@*@inject FoodEntryService FoodEntryService*@
+@inject NavigationManager Navigation
+@inject ISnackbar Snackbar
+
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-10">
+    <MudCard>
+        <MudCardContent>
+            <MudText Typo="Typo.h4" Class="mb-4">Dagelijkse Snack Tracker</MudText>
+            
+            <MudTextField Label="Naam eten" @bind-Value="foodName" Variant="Variant.Outlined" FullWidth Class="mb-4" />
+            
+            <MudNumericField Label="Kcal" @bind-Value="calories" Variant="Variant.Outlined" FullWidth Class="mb-4" />
+            <MudDatePicker Label="Datum" @bind-Date="entryDate" DateFormat="yyyy-MM-dd" Variant="Variant.Outlined" FullWidth Class="mb-4" />
+
+
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth OnClick="AddFoodEntry" Class="mb-4">
+                Voeg toe
+            </MudButton>
+        </MudCardContent>
+    </MudCard>
+    
+    <MudText Typo="Typo.h5" Class="mt-6">Voedsel van vandaag</MudText>
+    
+     @if (foodEntries.Any())
+    {
+        <MudList T ="FoodView">
+            @foreach (var entry in foodEntries)
+            {
+                <MudListItem>
+                    <MudText>@entry.FoodName</MudText>
+                    <MudText Typo="Typo.body2" Class="ml-auto">@entry.Calories</MudText>
+                    <MudText Typo="Typo.body2" Class="ml-2">@entry.EntryDate.Value.ToShortDateString()</MudText>
+                </MudListItem>
+            }
+        </MudList>
+    }
+    else
+    {
+        <MudText Typo="Typo.body1" Class="mt-4">No entries yet. Start tracking your food!</MudText>
+    }
+</MudContainer>
