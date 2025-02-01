@@ -1,38 +1,57 @@
 ﻿@page "/"
-@*@inject FoodEntryService FoodEntryService*@
+@using SnackTracker.Data
+@inject FoodEntryService FoodEntryService
 @inject NavigationManager Navigation
 @inject ISnackbar Snackbar
 
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-10">
-    <MudCard>
+    <MudCard Class="animate__animated animate__fadeIn">
         <MudCardContent>
             <MudText Typo="Typo.h4" Class="mb-4">Dagelijkse Snack Tracker</MudText>
-            
-            <MudTextField Label="Naam eten" @bind-Value="foodName" Variant="Variant.Outlined" FullWidth Class="mb-4" />
-            
-            <MudNumericField Label="Kcal" @bind-Value="calories" Variant="Variant.Outlined" FullWidth Class="mb-4" />
-            <MudDatePicker Label="Datum" @bind-Date="entryDate" DateFormat="yyyy-MM-dd" Variant="Variant.Outlined" FullWidth Class="mb-4" />
 
+            <MudTextField Label="Naam eten" @bind-Value="foodName" Variant="Variant.Outlined" FullWidth Class="mb-4"/>
+
+            <MudNumericField Label="Kcal" @bind-Value="calories" Variant="Variant.Outlined" FullWidth Class="mb-4"/>
+            <MudDatePicker Label="Datum" @bind-Date="entryDate" DateFormat="yyyy-MM-dd" Variant="Variant.Outlined"
+                           FullWidth Class="mb-4"/>
 
             <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth OnClick="AddFoodEntry" Class="mb-4">
                 Voeg toe
             </MudButton>
         </MudCardContent>
     </MudCard>
-    
+
     <MudText Typo="Typo.h5" Class="mt-6">Voedsel van vandaag</MudText>
-    
-     @if (foodEntries.Any())
+
+    @if (groupedEntries.Any())
     {
-        <MudList T ="FoodView">
-            @foreach (var entry in foodEntries)
+        <MudList T="IGrouping<DateTime, FoodEntry>">
+            @foreach (var group in groupedEntries)
             {
-                <MudListItem>
-                    <MudText>@entry.FoodName</MudText>
-                    <MudText Typo="Typo.body2" Class="ml-auto">@entry.Calories</MudText>
-                    <MudText Typo="Typo.body2" Class="ml-2">@entry.EntryDate.Value.ToShortDateString()</MudText>
-                </MudListItem>
+                <MudCard Class="mb-4">
+                    <MudExpansionPanel>
+                        <TitleContent>
+                            <div class="d-flex">
+                                <MudIcon Icon="@Icons.Material.Filled.Fastfood" class="mr-2"></MudIcon>
+                                <MudText>@group.Key.ToLongDateString() - Totaal: @group.Sum(e => e.Calories) kcal
+                                </MudText>
+                            </div>
+                        </TitleContent>
+                        <ChildContent>
+                            <MudDivider Class="my-2"></MudDivider>
+                            <MudList T="FoodEntry">
+                                @foreach (var entry in group)
+                                {
+                                    <MudListItem>
+                                        <MudText>@entry.FoodName - @entry.Calories kcal</MudText>
+                                    </MudListItem>
+                                }
+                            </MudList>
+                        </ChildContent>
+
+                    </MudExpansionPanel>
+                </MudCard>
             }
         </MudList>
     }

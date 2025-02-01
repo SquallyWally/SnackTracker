@@ -1,4 +1,5 @@
 ﻿using MudBlazor;
+using SnackTracker.Data;
 
 namespace SnackTracker.Components.Pages;
 
@@ -6,9 +7,20 @@ public partial class Home
 {
     private string foodName = string.Empty;
     private int calories;
-    private DateTime? entryDate = DateTime.Today;
-    private List<FoodView> foodEntries = new();
+    private DateTime? entryDate = DateTime.Now;
+    private List<FoodEntry> foodEntries = new();
+    private IEnumerable<IGrouping<DateTime, FoodEntry>> groupedEntries = new List<IGrouping<DateTime, FoodEntry>>();
 
+    protected override void OnInitialized()
+    {
+        LoadEntries();
+    }
+
+    private void LoadEntries()
+    {
+        foodEntries = FoodEntryService.GetEntries();
+        groupedEntries  = foodEntries.OrderBy(e => e.EntryDate.Value).GroupBy(e => e.EntryDate.Value.Date);
+    }
     private void AddFoodEntry()
     {
         if (string.IsNullOrEmpty(foodName) || calories <= 0)
@@ -17,21 +29,18 @@ public partial class Home
             return;
         }
 
-        foodEntries.Add(new FoodView
+        FoodEntryService.AddEntry(new FoodEntry
         {
             FoodName = foodName,
             Calories = calories,
             EntryDate = entryDate
         });
-
+        
+        LoadEntries();
+        
         foodName = string.Empty;
         calories = 0;
-    }
-
-    private class FoodView
-    {
-        public string FoodName { get; set; }
-        public int Calories { get; set; }
-        public DateTime? EntryDate { get; set; }
+        
+        Snackbar.Add("Food entry added!", Severity.Success);
     }
 }
